@@ -1,6 +1,7 @@
 import requests
 import json
 import os.path
+import getpass
 from datetime import datetime
 from operator import itemgetter
 
@@ -32,51 +33,57 @@ def getDomainUserCompanyId(auth_headers):
     ).json()
     return company['Domain'], users['UserId'], users['CompanyId']
 
-print("Woffu Autologin Script\n")
-if os.path.exists("./data.json"):
-    has_credentials = True
-if (has_credentials):
-    with open("./data.json", "r") as json_data:
-        login_info = json.load(json_data)
-        domain, username, password, user_id, signed_in, company_id = itemgetter(
-            "domain",
-            "username"
-            "password",
-            "user_id",
-            "signed_in",
-            "company_id",
-        )(login_info)
-else:
-    username = input("Enter your username:\n")
-    password = input("Enter your password:\n")
+def signIn(domain, user_id, auth_headers):
+    print("Sending sign request...\n")
+    return requests.post(
+        f"https://{domain}/api/svc/signs/signs",
+        json = {
+            'StartDate': datetime.now().replace(microsecond=0).isoformat()+"+01:00",
+            'EndDate': datetime.now().replace(microsecond=0).isoformat()+"+01:00",
+            'TimezoneOffset': "-60",
+            'UserId': user_id
+        },
+        headers = auth_headers
+    ).ok
 
-auth_headers = getAuthHeaders()
-
-if (not has_credentials):
-    domain, user_id, company_id = getDomainUserCompanyId(auth_headers)
-
-print("Sending sign request...\n")
-signin = requests.post(
-    f"https://{domain}/api/svc/signs/signs",
-    json = {
-        'StartDate': datetime.now().replace(microsecond=0).isoformat()+"+01:00",
-        'EndDate': datetime.now().replace(microsecond=0).isoformat()+"+01:00",
-        'TimezoneOffset': "-60",
-        'UserId': user_id
-    },
-    headers = auth_headers
-).status_code
-
-if (not has_credentials):
+def saveData(username, password, user_id, company_id, domain):
     with open("data.json", "w") as login_info:
         json.dump(
             {
                 "username": username,
                 "password": password,
-                "signed_in": True,
                 "user_id": user_id,
                 "company_id": company_id,
                 "domain": domain
             },
             login_info
         )
+
+print("Woffu Autologin Script\n")
+saved_credentials = os.path.exists("./data.json")
+if (saved_credentials):
+    with open("./data.json", "r") as json_data:
+        login_info = json.load(json_data)
+        domain, username, password, user_id, company_id = itemgetter(
+            "domain",
+            "username",
+            "password",
+            "user_id",
+            "company_id"
+        )(login_info)
+else:
+    username = input("Enter your Woffu username:\n")
+    password = getpass.getpass("Enter your password:\n")
+
+auth_headers = getAuthHeaders(username, password)
+
+if (not saved_credentials):
+    domain, user_id, company_id = getDomainUserCompanyId(auth_headers)
+
+if (signIn(domain, user_id, auth_headers)):
+    print ("Success!")
+else:
+    print ("Something went wrong when trying to log you in/out.")
+
+if (not saved_credentials):
+    saveData(username, password, user_id, company_id, domain)
