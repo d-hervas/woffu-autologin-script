@@ -34,6 +34,7 @@ def getDomainUserCompanyId(auth_headers):
     return company['Domain'], users['UserId'], users['CompanyId']
 
 def signIn(domain, user_id, auth_headers):
+    #Actually log in
     print("Sending sign request...\n")
     return requests.post(
         f"https://{domain}/api/svc/signs/signs",
@@ -47,6 +48,7 @@ def signIn(domain, user_id, auth_headers):
     ).ok
 
 def saveData(username, password, user_id, company_id, domain):
+    #Store user/password/id to make less network requests in next logins
     with open("data.json", "w") as login_info:
         json.dump(
             {
