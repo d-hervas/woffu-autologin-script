@@ -18,9 +18,8 @@ but to execute the script whenever you want to log in or out.
 
 ## Caveats
 ### Passwords
-Be aware, though, this script **STORES YOUR PASSWORD IN PLAIN TEXT IN YOUR COMPUTER**, which is something you should never ever
-ever do, ever. However, to fully automate the task, I do need the password to send it to the Woffu servers, so I'm afraid there's
-no way to work around this problem. 
+Be aware, though, this script **STORES YOUR PASSWORD IN PLAIN TEXT IN YOUR COMPUTER**, which is something you should normally never ever
+ever do, ever. However, to fully automate the task, I do need the password to send it to the Woffu servers, so I'm afraid there's no way to work around this problem. 
 
 Woffu [does have an API](https://www.woffu.com/wp-content/uploads/2019/07/Woffu-API-Document-Guide-en.pdf) your organization 
 can probably use to log you in, or enable so that your user can have an API Key or something. The organization I used to test
